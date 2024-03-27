@@ -36,7 +36,8 @@ class App extends Component{
                 <Image source={{uri:"coloca a url aqui"}} style={{width:300, height:300}}/>
                 {/* Image é obrigatório informar a largura e altura*/}
 
-                <Text>(curso)</Text>
+                <Text>{curso}</Text>
+                {/*Para colocar varievel basta por {}, ex: {varievel}*/}
 
                 {/*para chamar o componente */}
                 {/* <MinhaImage/>*/}
@@ -48,3 +49,18 @@ class App extends Component{
 }
 //para a imagem tem que ter o https
 export default App;
+
+
+class MinhaImagem extends Component{
+    render(){
+        let img = 'url da imagem';
+        return(
+            <View>
+                <Image source={{url: img}} style={{width:300, height:300}}/>
+
+                <Image source={{url: img}} style={{with: this.props.largura, height:this.props.altura}}/>
+                <Text>{this.props.nome}</Text>
+            </View>
+        );
+    }
+}
