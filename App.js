@@ -42,7 +42,7 @@ class App extends Component{
                 {/*para chamar o componente */}
                 {/* <MinhaImage/>*/}
                 {/* Passando propriedades a largura e a Altura*/}
-                {/* <MinhaImagem largura=(400) altura=(400) nome="Imagem 1"/>*/}
+                <MinhaImagem largura={400} altura={400} nome="Imagem 1"/>
             </View>
         );
     }
@@ -56,7 +56,7 @@ class MinhaImagem extends Component{
         let img = 'url da imagem';
         return(
             <View>
-                <Image source={{url: img}} style={{width:300, height:300}}/>
+                {/* <Image source={{url: img}} style={{width:300, height:300}}/> */}
 
                 <Image source={{url: img}} style={{with: this.props.largura, height:this.props.altura}}/>
                 <Text>{this.props.nome}</Text>
