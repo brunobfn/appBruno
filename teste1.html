@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferramenta de Anotações</title>
+    <title>Ferramenta de Anotações com Backup</title>
     <style>
         textarea { width: 100%; height: 150px; }
         #notes { margin-top: 10px; }
@@ -24,6 +24,9 @@
             const note = noteInput.value;
             if (note) {
                 let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+                // Backup das notas antes de qualquer alteração
+                backupNotes(notes);
+
                 if (editingIndex > -1) {
                     // Editando nota existente
                     notes[editingIndex] = note;
@@ -38,6 +41,13 @@
             }
         }
 
+        function backupNotes(notes) {
+            let backups = JSON.parse(localStorage.getItem('notesBackup') || '[]');
+            const timestamp = new Date().toISOString();
+            backups.push({ timestamp, notes });
+            localStorage.setItem('notesBackup', JSON.stringify(backups));
+        }
+
         function editNote(index) {
             const notes = JSON.parse(localStorage.getItem('notes') || '[]');
             noteInput.value = notes[index];
@@ -46,6 +56,9 @@
 
         function deleteNote(index) {
             let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            // Backup das notas antes de qualquer alteração
+            backupNotes(notes);
+            
             notes.splice(index, 1);
             localStorage.setItem('notes', JSON.stringify(notes));
             displayNotes();
