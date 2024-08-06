@@ -7,6 +7,8 @@
     <style>
         textarea { width: 100%; height: 150px; }
         #notes { margin-top: 10px; }
+        .note { margin-bottom: 10px; }
+        .note-buttons { margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -16,21 +18,48 @@
     <script>
         const noteInput = document.getElementById('noteInput');
         const notesContainer = document.getElementById('notes');
+        let editingIndex = -1;
 
         function saveNote() {
             const note = noteInput.value;
             if (note) {
-                const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-                notes.push(note);
+                let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+                if (editingIndex > -1) {
+                    // Editando nota existente
+                    notes[editingIndex] = note;
+                    editingIndex = -1;
+                } else {
+                    // Adicionando nova nota
+                    notes.push(note);
+                }
                 localStorage.setItem('notes', JSON.stringify(notes));
                 displayNotes();
                 noteInput.value = '';
             }
         }
 
+        function editNote(index) {
+            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            noteInput.value = notes[index];
+            editingIndex = index;
+        }
+
+        function deleteNote(index) {
+            let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            displayNotes();
+        }
+
         function displayNotes() {
             const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            notesContainer.innerHTML = notes.map(note => `<div>${note}</div>`).join('');
+            notesContainer.innerHTML = notes.map((note, index) => `
+                <div class="note">
+                    <span>${note}</span>
+                    <button class="note-buttons" onclick="editNote(${index})">Editar</button>
+                    <button class="note-buttons" onclick="deleteNote(${index})">Excluir</button>
+                </div>
+            `).join('');
         }
 
         displayNotes();
