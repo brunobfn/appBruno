@@ -15,11 +15,15 @@
     <input type="text" id="noteTitle" placeholder="Digite o título da nota...">
     <textarea id="noteInput" placeholder="Digite sua nota aqui..."></textarea>
     <button onclick="saveNote()">Salvar Nota</button>
+    
+    <input type="text" id="searchInput" placeholder="Pesquisar título da nota...">
     <div id="notes"></div>
+    
     <script>
         const noteTitle = document.getElementById('noteTitle');
         const noteInput = document.getElementById('noteInput');
         const notesContainer = document.getElementById('notes');
+        const searchInput = document.getElementById('searchInput');
         let editingIndex = -1;
 
         function saveNote() {
@@ -74,8 +78,10 @@
         }
 
         function displayNotes() {
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            notesContainer.innerHTML = notes.map((note, index) => `
+            let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(searchTerm));
+            notesContainer.innerHTML = filteredNotes.map((note, index) => `
                 <div class="note">
                     <strong>${note.title}</strong>
                     <p>${note.text}</p>
@@ -84,6 +90,8 @@
                 </div>
             `).join('');
         }
+
+        searchInput.addEventListener('input', displayNotes);
 
         displayNotes();
     </script>
