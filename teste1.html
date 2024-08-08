@@ -17,6 +17,12 @@
     <button onclick="saveNote()">Salvar Nota</button>
     
     <input type="text" id="searchInput" placeholder="Pesquisar título da nota...">
+    <select id="sortSelect" onchange="displayNotes()">
+        <option value="default">Ordenar por...</option>
+        <option value="date">Data</option>
+        <option value="title">Título</option>
+    </select>
+    
     <div id="notes"></div>
     
     <script>
@@ -24,6 +30,7 @@
         const noteInput = document.getElementById('noteInput');
         const notesContainer = document.getElementById('notes');
         const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
         let editingIndex = -1;
 
         function saveNote() {
@@ -45,9 +52,9 @@
                     notes.push({ title: title, text: noteText, timestamp: timestamp });
                 }
                 localStorage.setItem('notes', JSON.stringify(notes));
-                displayNotes();
                 noteTitle.value = '';
                 noteInput.value = '';
+                displayNotes();
             } else {
                 alert('Por favor, preencha o título e a nota.');
             }
@@ -80,7 +87,19 @@
         function displayNotes() {
             let notes = JSON.parse(localStorage.getItem('notes') || '[]');
             const searchTerm = searchInput.value.toLowerCase();
+            const sortBy = sortSelect.value;
+            
+            // Filtrar notas por título
             const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(searchTerm));
+            
+            // Ordenar notas
+            if (sortBy === 'date') {
+                filteredNotes.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            } else if (sortBy === 'title') {
+                filteredNotes.sort((a, b) => a.title.localeCompare(b.title));
+            }
+            
+            // Exibir notas
             notesContainer.innerHTML = filteredNotes.map((note, index) => `
                 <div class="note">
                     <strong>${note.title}</strong>
