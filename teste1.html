@@ -9,39 +9,43 @@
         #notes { margin-top: 10px; }
         .note { margin-bottom: 10px; }
         .note-buttons { margin-left: 10px; }
-        #gravar { background-color: #007bff; color: white; }
     </style>
 </head>
 <body>
+    <input type="text" id="noteTitle" placeholder="Digite o título da nota...">
     <textarea id="noteInput" placeholder="Digite sua nota aqui..."></textarea>
     <button onclick="saveNote()">Salvar Nota</button>
-    <button id="gravar">Gravar</button>
     <div id="notes"></div>
     <script>
+        const noteTitle = document.getElementById('noteTitle');
         const noteInput = document.getElementById('noteInput');
         const notesContainer = document.getElementById('notes');
-        const gravarBtn = document.getElementById('gravar');
         let editingIndex = -1;
-        let recognition;
 
         function saveNote() {
-            const note = noteInput.value;
-            if (note) {
+            const title = noteTitle.value;
+            const noteText = noteInput.value;
+            if (title && noteText) {
                 let notes = JSON.parse(localStorage.getItem('notes') || '[]');
                 // Backup das notas antes de qualquer alteração
                 backupNotes(notes);
 
+                const timestamp = new Date().toISOString();
+
                 if (editingIndex > -1) {
                     // Editando nota existente
-                    notes[editingIndex] = note;
+                    notes[editingIndex] = { title: title, text: noteText, timestamp: timestamp };
                     editingIndex = -1;
                 } else {
                     // Adicionando nova nota
-                    notes.push(note);
+                    notes.push({ title: title, text: noteText, timestamp: timestamp });
                 }
                 localStorage.setItem('notes', JSON.stringify(notes));
                 displayNotes();
+                noteTitle.value = '';
                 noteInput.value = '';
+            } else {
+                alert('Por favor, preencha o título e a nota.');
             }
         }
 
@@ -54,7 +58,8 @@
 
         function editNote(index) {
             const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            noteInput.value = notes[index];
+            noteTitle.value = notes[index].title;
+            noteInput.value = notes[index].text;
             editingIndex = index;
         }
 
@@ -62,7 +67,7 @@
             let notes = JSON.parse(localStorage.getItem('notes') || '[]');
             // Backup das notas antes de qualquer alteração
             backupNotes(notes);
-            
+
             notes.splice(index, 1);
             localStorage.setItem('notes', JSON.stringify(notes));
             displayNotes();
@@ -72,42 +77,13 @@
             const notes = JSON.parse(localStorage.getItem('notes') || '[]');
             notesContainer.innerHTML = notes.map((note, index) => `
                 <div class="note">
-                    <span>${note}</span>
+                    <strong>${note.title}</strong>
+                    <p>${note.text}</p>
                     <button class="note-buttons" onclick="editNote(${index})">Editar</button>
                     <button class="note-buttons" onclick="deleteNote(${index})">Excluir</button>
                 </div>
             `).join('');
         }
-
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = 'pt-BR';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                noteInput.value += transcript;
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Erro no reconhecimento de voz:', event.error);
-            };
-
-            recognition.onend = () => {
-                gravarBtn.disabled = false;
-            };
-        } else {
-            gravarBtn.disabled = true;
-            alert('Seu navegador não suporta reconhecimento de voz.');
-        }
-
-        gravarBtn.addEventListener('click', () => {
-            if (recognition) {
-                recognition.start();
-                gravarBtn.disabled = true;
-            }
-        });
 
         displayNotes();
     </script>
